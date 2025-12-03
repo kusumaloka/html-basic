@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Belajar Git & Branching</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.09);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-soft: #1f2937;
+      --danger: #f97373;
+      --success: #4ade80;
+      --radius-lg: 14px;
+      --radius-xl: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #020617, #020617, #020617);
+      border-radius: 24px;
+      border: 1px solid var(--border-soft);
+      box-shadow:
+        0 18px 60px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(15, 23, 42, 0.9) inset;
+      padding: 28px 24px 24px;
+      backdrop-filter: blur(16px);
+    }
+
+    header {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .logo-pill {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #38bdf8, #0ea5e9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 4px rgba(15, 118, 110, 0.3),
+        0 10px 30px rgba(8, 47, 73, 0.9);
+    }
+
+    .logo-pill span {
+      font-weight: 700;
+      font-size: 22px;
+      color: #e0f2fe;
+    }
+
+    .title-block h1 {
+      font-size: 24px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .title-block p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.6fr);
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      body {
+        padding: 16px;
+      }
+      .card {
+        padding: 20px 16px 18px;
+      }
+    }
+
+    .panel {
+      background: radial-gradient(circle at top left, #0b1220 0, #020617 65%);
+      border-radius: 18px;
+      border: 1px solid var(--border-soft);
+      padding: 14px 14px 12px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #4b5563;
+    }
+
+    .dot:nth-child(1) {
+      background: #f97373;
+    }
+    .dot:nth-child(2) {
+      background: #facc15;
+    }
+    .dot:nth-child(3) {
+      background: #4ade80;
+    }
+
+    .terminal {
+      background: #020617;
+      border-radius: 14px;
+      border: 1px solid #111827;
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+        Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 10px 12px 8px;
+      color: #e5e7eb;
+      line-height: 1.5;
+      max-height: 240px;
+      overflow: auto;
+    }
+
+    .prompt {
+      color: #38bdf8;
+    }
+
+    .cmd {
+      color: #e5e7eb;
+    }
+
+    .comment {
+      color: #9ca3af;
+    }
+
+    .accent-line {
+      border-left: 3px solid var(--accent);
+      padding-left: 10px;
+      margin: 4px 0 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    ul {
+      margin-left: 18px;
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    li + li {
+      margin-top: 4px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.12);
+      border: 1px solid rgba(45, 212, 191, 0.35);
+      color: #a5f3fc;
+      white-space: nowrap;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .checklist {
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-top: 4px;
+      color: var(--text-muted);
+    }
+
+    .check-icon {
+      width: 14px;
+      margin-top: 2px;
+      color: var(--success);
+    }
+
+    footer {
+      margin-top: 14px;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag-main {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <header>
+        <div class="logo-pill">
+          <span>git</span>
+        </div>
+        <div class="title-block">
+          <h1>
+            Belajar Git & Branching
+            <span class="badge">Latihan di lokal dulu</span>
+          </h1>
+          <p>
+            Halaman ini cuma buat latihan:
+            <span class="tag-main">branch, commit, push, merge</span>.
+            Aman diutak-atik sesuka hati.
+          </p>
+        </div>
+      </header>
+
+      <div class="grid">
+        <!-- Panel kiri: terminal simulasi -->
+        <section class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Simulasi Terminal</span>
+            <div class="dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+          <div class="accent-line">
+            Workflow standar:
+            <strong>edit → add → commit → push</strong>.
+          </div>
+          <div class="terminal">
+            <div>
+              <span class="prompt">bagus@laptop</span>:<span class="cmd">~/git/html-basic</span>$ 
+              <span class="cmd">git status</span>
+            </div>
+            <div class="comment">On branch branch-latihan</div>
+            <div class="comment">nothing to commit, working tree clean</div>
+            <br />
+
+            <div>
+              <span class="prompt">bagus@laptop</span>:<span class="cmd">~/git/html-basic</span>$ 
+              <span class="cmd"># 1. Edit file HTML ini</span>
+            </div>
+            <div>
+              <span class="prompt">bagus@laptop</span>:<span class="cmd">~/git/html-basic</span>$ 
+              <span class="cmd">git add index.html</span>
+            </div>
+            <div>
+              <span class="prompt">bagus@laptop</span>:<span class="cmd">~/git/html-basic</span>$ 
+              <span class="cmd">git commit -m "Update tampilan halaman latihan"</span>
+            </div>
+            <div class="comment">[branch-latihan abc1234] Update tampilan halaman latihan</div>
+            <div class="comment"> 1 file changed, 10 insertions(+)</div>
+            <br />
+
+            <div>
+              <span class="prompt">bagus@laptop</span>:<span class="cmd">~/git/html-basic</span>$ 
+              <span class="cmd">git push</span>
+            </div>
+            <div class="comment">
+              → Perubahan terkirim ke remote (GitHub) untuk branch ini.
+            </div>
+          </div>
+        </section>
+
+        <!-- Panel kanan: ringkasan & checklist -->
+        <section class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Ringkasan Latihan</span>
+            <div class="dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-title">Tujuan Halaman</div>
+            <p class="accent-line">
+              Halaman ini dipakai untuk:
+              <strong>latihan Git di lokal</strong> sebelum benar-benar
+              kolaborasi pakai akun kantor.
+            </p>
+
+            <ul>
+              <li>Coba bikin branch baru, misalnya: <code>branch-latihan</code></li>
+              <li>Edit isi paragraf, judul, atau checklist di bawah.</li>
+              <li>Commit perubahan, lalu push ke branch tersebut.</li>
+              <li>Kalau sudah pede, baru merge ke <code>main</code>.</li>
+            </ul>
+
+            <div class="pill-row">
+              <span class="pill">git switch -c branch-latihan</span>
+              <span class="pill">git status</span>
+              <span class="pill">git add index.html</span>
+              <span class="pill">git commit -m "..."</span>
+              <span class="pill">git push</span>
+            </div>
+
+            <div class="section-title" style="margin-top: 12px;">
+              Checklist yang bisa kamu coba
+            </div>
+            <div class="checklist">
+              <div class="check-item">
+                <span class="check-icon">✔</span>
+                <span>Buat <strong>branch baru</strong> khusus untuk halaman ini.</span>
+              </div>
+              <div class="check-item">
+                <span class="check-icon">✔</span>
+                <span>
+                  Ubah sedikit teks di atas, commit dengan pesan yang
+                  <em>jelas</em>.
+                </span>
+              </div>
+              <div class="check-item">
+                <span class="check-icon">✔</span>
+                <span>
+                  Push branch tersebut ke GitHub, lihat perbedaan di tab
+                  <strong>Branches</strong>.
+                </span>
+              </div>
+              <div class="check-item">
+                <span class="check-icon">✔</span>
+                <span>
+                  Setelah paham, coba buat <strong>Pull Request</strong> dari
+                  branch latihan ke <code>main</code>.
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer>
+        <span>Made for: latihan Git lokal & cabang-cabangan 🙃</span>
+        <span>Step berikutnya: coba kolaborasi pakai akun kantor.</span>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
+
